@@ -1,0 +1,24 @@
+version = 1
+
+# Written here
+[[annotations]]
+path = ["*.*", "lang/*"]
+SPDX-FileCopyrightText = "2026 RF@eggnine.com"
+SPDX-License-Identifier = "MIT"
+
+# Derived from dnd5e module/data/abstract/system-data-model.mjs and module/data/abstract/sparse-data-model.mjs
+# at commit 3100ca51e89fc8d7ed341d8981083556a9e4d4bf
+# Modified to reuse as a module without conflicting with the dnd5e system class names
+[[annotations]]
+path = ["advanced-system-data-model.mjs", "advanced-sparse-data-model.mjs", "LICENSES/LicenseRef-dnd5e-MIT.txt"]
+SPDX-FileCopyrightText = [
+  "2021 Andrew Clayton and dnd5e contributors",
+  "2026 RF@eggnine.com",
+]
+SPDX-License-Identifier = "MIT"
+
+
+[[annotations]]
+path = ["LICENSES/LicenseRef-dnd5e-MIT.txt"]
+SPDX-FileCopyrightText = "2021 Andrew Clayton and dnd5e contributors"
+SPDX-License-Identifier = "MIT"

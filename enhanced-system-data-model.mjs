@@ -1,15 +1,12 @@
+import { MODULE } from "./module-info.mjs";
 const TextEditor = foundry.applications.ux.TextEditor.implementation;
 
 /**
- * @import { CompendiumBrowserFilterDefinition } from "../../applications/compendium-browser.mjs";
- * @import { SystemDataModelMetadata } from "./_types.mjs";
+ * @import { AdvancedSystemDataModelMetadata } from "./_types.mjs";
  */
 
 /**
  * Data Model variant with some extra methods to support template mix-ins.
- *
- * **Note**: This uses some advanced Javascript techniques that are not necessary for most data models.
- * Please refer to the [advancement data models]{@link BaseAdvancement} for an example of a more typical usage.
  *
  * In template.json, each Actor or Item type can incorporate several templates which are chunks of data that are
  * common across all the types that use them. One way to represent them in the schema for a given Document type is to
@@ -20,20 +17,12 @@ const TextEditor = foundry.applications.ux.TextEditor.implementation;
  * Here we have opted to instead create a separate Data Model for each template available. These define their own
  * schemas which are then mixed-in to the final schema for the Document type's Data Model. A Document type Data Model
  * can define its own schema unique to it, and then add templates in direct correspondence to those in template.json
- * via SystemDataModel.mixin.
+ * via AdvancedSystemDataModel.mixin.
+ *
+ * modulize-allow-no-prefixes: this is the base, with no fields of its own (its schema is those of its templates): the templates
+ * and the models made from it declare theirs, and `mixin` keeps them all.
  */
-export default class SystemDataModel extends foundry.abstract.TypeDataModel {
-
-  /** @inheritDoc */
-  static _enableV10Validation = true;
-
-  /**
-   * System type that this system data model represents (e.g. "character", "npc", "vehicle").
-   * @type {string}
-   */
-  static _systemType;
-
-  /* -------------------------------------------- */
+export default class AdvancedSystemDataModel extends foundry.abstract.TypeDataModel {
 
   /**
    * Base templates used for construction.
@@ -45,30 +34,13 @@ export default class SystemDataModel extends foundry.abstract.TypeDataModel {
   /* -------------------------------------------- */
 
   /**
-   * The field names of the base templates used for construction.
-   * @type {Set<string>}
-   * @private
-   */
-  static get _schemaTemplateFields() {
-    const fieldNames = Object.freeze(new Set(this._schemaTemplates.map(t => t.schema.keys()).flat()));
-    Object.defineProperty(this, "_schemaTemplateFields", {
-      value: fieldNames,
-      writable: false,
-      configurable: false
-    });
-    return fieldNames;
-  }
-
-  /* -------------------------------------------- */
-
-  /**
    * A list of properties that should not be mixed-in to the final type.
    * @type {Set<string>}
    * @private
    */
   static _immiscible = new Set(["length", "mixed", "name", "prototype", "cleanData", "_cleanData",
-    "_initializationOrder", "validateJoint", "_validateJoint", "migrateData", "_migrateData",
-    "shimData", "_shimData", "defineSchema", "resetData", "_resetData"]);
+    "validateJoint", "_validateJoint", "migrateData", "_migrateData",
+    "shimData", "_shimData", "defineSchema", "resetData", "_resetData", "LOCALIZATION_PREFIXES"]);
 
   /* -------------------------------------------- */
 
@@ -76,22 +48,10 @@ export default class SystemDataModel extends foundry.abstract.TypeDataModel {
    * Metadata that describes this DataModel.
    * @type {SystemDataModelMetadata}
    */
-  static metadata = Object.freeze({
-    systemFlagsModel: null
-  });
+  static metadata = Object.freeze({});
 
   get metadata() {
     return this.constructor.metadata;
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Filters available for this item type when using the compendium browser.
-   * @returns {CompendiumBrowserFilterDefinition}
-   */
-  static get compendiumBrowserFilters() {
-    return new Map();
   }
 
   /* -------------------------------------------- */
@@ -106,15 +66,10 @@ export default class SystemDataModel extends foundry.abstract.TypeDataModel {
 
   /* -------------------------------------------- */
 
-  /** @inheritDoc */
+  /** @concrete */
   static defineSchema() {
     const schema = {};
-    for ( const template of this._schemaTemplates ) {
-      if ( !template.defineSchema ) {
-        throw new Error(`Invalid dnd5e template mixin ${template} defined on class ${this.constructor}`);
-      }
-      this.mergeSchema(schema, template.defineSchema());
-    }
+    for ( const template of this._schemaTemplates ) this.mergeSchema(schema, template.defineSchema());
     return schema;
   }
 
@@ -135,42 +90,19 @@ export default class SystemDataModel extends foundry.abstract.TypeDataModel {
   /*  Data Cleaning                               */
   /* -------------------------------------------- */
 
-  /** @inheritDoc */
-  static cleanData(source, options, _state) {
-    this._cleanData(source, options, _state);
-    return super.cleanData(source, options, _state);
-  }
-
-  /* -------------------------------------------- */
-
   /**
-   * Performs cleaning without calling DataModel.cleanData.
+   * Clean the data of each template. Foundry calls this hook itself while it cleans the data of a model (after the fields
+   * are cleaned), so the model does not override `cleanData` to call it as well: that ran each template's cleaning twice.
    * @param {object} [source]                           The source data
    * @param {object} [options={}]                       Additional options (see DataModel.cleanData)
    * @param {Partial<DataFieldCleaningState>} [_state]  Internal options used during cleaning recursion
+   * @inheritDoc
    * @protected
    */
   static _cleanData(source, options, _state) {
+    super._cleanData(source, options, _state);
     for ( const template of this._schemaTemplates ) {
       template._cleanData(source, options, _state);
-    }
-  }
-
-  /* -------------------------------------------- */
-  /*  Data Initialization                         */
-  /* -------------------------------------------- */
-
-  /** @inheritDoc */
-  static *_initializationOrder() {
-    for ( const template of this._schemaTemplates ) {
-      for ( const entry of template._initializationOrder() ) {
-        entry[1] = this.schema.get(entry[0]);
-        yield entry;
-      }
-    }
-    for ( const entry of this.schema.entries() ) {
-      if ( this._schemaTemplateFields.has(entry[0]) ) continue;
-      yield entry;
     }
   }
 
@@ -179,19 +111,22 @@ export default class SystemDataModel extends foundry.abstract.TypeDataModel {
   /* -------------------------------------------- */
 
   /**
-   * Pre-creation logic for this system data.
+   * Pre-creation logic for this system data: an item of a type whose metadata says it is a `singleton` is refused on an actor
+   * that has one.
    * @param {object} data               The initial data object provided to the document creation request.
    * @param {object} options            Additional options which modify the creation request.
    * @param {User} user                 The User requesting the document creation.
    * @returns {Promise<boolean|void>}   A return value of false indicates the creation operation should be cancelled.
    * @see {Document#_preCreate}
+   * @inheritDoc
    * @protected
    */
   async _preCreate(data, options, user) {
+    if ( await super._preCreate(data, options, user) === false ) return false;
     const actor = this.parent.actor;
-    if ( !actor?.system.isCharacter || !this.metadata?.singleton ) return;
+    if ( !actor || !this.metadata?.singleton ) return;
     if ( actor.itemTypes[data.type]?.length ) {
-      ui.notifications.error("DND5E.ACTOR.Warning.Singleton", {
+      ui.notifications.error(`${MODULE.loc}.Singleton`, {
         format: {
           itemType: _loc(CONFIG.Item.typeLabels[data.type]),
           actorType: _loc(CONFIG.Actor.typeLabels[actor.type])
@@ -203,14 +138,6 @@ export default class SystemDataModel extends foundry.abstract.TypeDataModel {
 
   /* -------------------------------------------- */
   /*  Data Validation                             */
-  /* -------------------------------------------- */
-
-  /** @inheritDoc */
-  validate(options={}) {
-    if ( this.constructor._enableV10Validation === false ) return true;
-    return super.validate(options);
-  }
-
   /* -------------------------------------------- */
 
   /** @inheritDoc */
@@ -238,9 +165,9 @@ export default class SystemDataModel extends foundry.abstract.TypeDataModel {
   /* -------------------------------------------- */
 
   /** @inheritDoc */
-  static migrateData(source) {
-    this._migrateData(source);
-    return super.migrateData(source);
+  static migrateData(source, options) {
+    this._migrateData(source, options);
+    return super.migrateData(source, options);
   }
 
   /* -------------------------------------------- */
@@ -248,11 +175,12 @@ export default class SystemDataModel extends foundry.abstract.TypeDataModel {
   /**
    * Performs migration without calling DataModel.migrateData.
    * @param {object} source     The source data
+   * @param {object} [options]  Additional options (see DataModel.migrateData)
    * @protected
    */
-  static _migrateData(source) {
+  static _migrateData(source, options) {
     for ( const template of this._schemaTemplates ) {
-      template._migrateData(source);
+      template._migrateData(source, options);
     }
   }
 
@@ -309,21 +237,36 @@ export default class SystemDataModel extends foundry.abstract.TypeDataModel {
 
   /**
    * Mix multiple templates with the base type.
-   * @param {...*} templates            Template classes to mix.
-   * @returns {typeof SystemDataModel}  Final prepared type.
+   * @param {...*} templates                    Template classes to mix.
+   * @returns {typeof AdvancedSystemDataModel}  Final prepared type.
    */
   static mixin(...templates) {
     for ( const template of templates ) {
-      if ( !(template.prototype instanceof SystemDataModel) ) {
-        throw new Error(`${template.name} is not a subclass of SystemDataModel`);
+      if ( !(template.prototype instanceof AdvancedSystemDataModel) ) {
+        throw new Error(`${template.name} is not a subclass of AdvancedSystemDataModel`);
       }
     }
 
     const Base = class extends this {};
+    // Named for what it is made of, since a model that is mixed is the one an error names
+    Object.defineProperty(Base, "name", {
+      value: `${this.name}.mixin(${templates.map(template => template.name).join(", ")})`,
+      configurable: true
+    });
     Object.defineProperty(Base, "_schemaTemplates", {
       value: Object.seal([...this._schemaTemplates, ...templates]),
       writable: false,
       configurable: false
+    });
+
+    // The prefixes of the templates are all kept, with those of the model this is mixed into: Foundry gives the labels of the
+    // fields from the lang keys of each. (A model made from this one that declares its own starts from `super.LOCALIZATION_PREFIXES`.)
+    Object.defineProperty(Base, "LOCALIZATION_PREFIXES", {
+      value: Object.freeze([...new Set([
+        ...(this.LOCALIZATION_PREFIXES ?? []), ...templates.flatMap(template => template.LOCALIZATION_PREFIXES ?? [])
+      ])]),
+      writable: true,
+      configurable: true
     });
 
     for ( const template of templates ) {
@@ -347,10 +290,10 @@ export default class SystemDataModel extends foundry.abstract.TypeDataModel {
   /*  Helpers                                     */
   /* -------------------------------------------- */
 
-  /** @override */
+  /** @inheritDoc */
   async toEmbed(config, options={}) {
     const keyPath = this.embeddedDescriptionKeyPath;
-    if ( !keyPath || !foundry.utils.hasProperty(this, keyPath) ) return null;
+    if ( !keyPath || !foundry.utils.hasProperty(this, keyPath) ) return super.toEmbed(config, options);
     const enriched = await TextEditor.enrichHTML(foundry.utils.getProperty(this, keyPath), {
       ...options,
       relativeTo: this.parent

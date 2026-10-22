@@ -1,7 +1,7 @@
 /**
  * Data Model variant that does not export fields with an `undefined` value during `toObject(true)`.
  */
-export default class SparseDataModel extends foundry.abstract.DataModel {
+export default class AdvancedSparseDataModel extends foundry.abstract.DataModel {
   /** @inheritDoc */
   toObject(source=true) {
     if ( !source ) return super.toObject(source);

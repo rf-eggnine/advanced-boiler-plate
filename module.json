@@ -1,0 +1,28 @@
+{
+  "id": "advanced-clock",
+  "title": "Advanced Clock",
+  "description": "Moves the world clock a little with real time, so that effects with a duration run out while the game is played. Off to begin with; waits while the game is paused.",
+  "version": "0.0.1",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "relationships": {
+    "requires": [
+      {
+        "id": "advanced-core",
+        "type": "module"
+      }
+    ]
+  },
+  "esmodules": [
+    "module.mjs"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ]
+}
