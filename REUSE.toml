@@ -10,12 +10,12 @@ SPDX-License-Identifier = "MIT"
 # at commit 3100ca51e89fc8d7ed341d8981083556a9e4d4bf
 # Modified to reuse as a module without conflicting with the dnd5e system class names
 [[annotations]]
-path = ["advanced-system-data-model.mjs", "advanced-sparse-data-model.mjs", "LICENSES/LicenseRef-dnd5e-MIT.txt"]
+path = ["advanced-system-data-model.mjs", "advanced-sparse-data-model.mjs"]
 SPDX-FileCopyrightText = [
   "2021 Andrew Clayton and dnd5e contributors",
   "2026 RF@eggnine.com",
 ]
-SPDX-License-Identifier = "MIT"
+SPDX-License-Identifier = "LicenseRef-dnd5e-MIT"
 
 
 [[annotations]]

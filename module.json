@@ -3,6 +3,14 @@
   "title": "Advanced Boiler Plate",
   "description": "Provides boiler plate for a minumal system.",
   "version": "0.0.1",
+  "authors": [
+    { "name": "RF", "email": "rf@eggnine.com" },
+    { "name": "Volta Fourteen (Claude Sonnet, AI)" },
+    { "name": "Andrew Clayton and dnd5e contributors", "url": "https://github.com/foundryvtt/dnd5e" }
+  ],
+  "url": "https://github.com/rf-eggnine/advanced-boiler-plate",
+  "manifest": "https://raw.githubusercontent.com/rf-eggnine/advanced-boiler-plate/main/module.json",
+  "license": "https://github.com/rf-eggnine/advanced-boiler-plate/blob/main/LICENSE",
   "compatibility": {
     "minimum": "14",
     "verified": "14"

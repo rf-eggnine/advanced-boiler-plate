@@ -30,3 +30,23 @@ classes when the game initializes (the `init` hook) or later, and build the mode
 ## The singleton message
 
 `ADVANCED_BOILER_PLATE.Singleton`, with `{itemType}` and `{actorType}`.
+
+## Derived from the dnd5e system
+
+`advanced-system-data-model.mjs` and `advanced-sparse-data-model.mjs` are derived from
+[`module/data/abstract/system-data-model.mjs`](https://github.com/foundryvtt/dnd5e/blob/3100ca51e89fc8d7ed341d8981083556a9e4d4bf/module/data/abstract/system-data-model.mjs)
+and [`module/data/abstract/sparse-data-model.mjs`](https://github.com/foundryvtt/dnd5e/blob/3100ca51e89fc8d7ed341d8981083556a9e4d4bf/module/data/abstract/sparse-data-model.mjs)
+of the [dnd5e system](https://github.com/foundryvtt/dnd5e) for Foundry Virtual Tabletop, at commit
+`3100ca51e89fc8d7ed341d8981083556a9e4d4bf`. dnd5e is copyright 2021 Andrew Clayton and dnd5e contributors, under the MIT
+license. They are modified here to be used from a module without conflicting with the class names of the dnd5e system.
+
+The history of the two files is kept, with its authors. It was filtered to those files, so the commit hashes are not
+dnd5e's. This is not an official dnd5e package and is not endorsed by its authors.
+
+## License and authors
+
+MIT, see `LICENSE`. The copyright is dnd5e's (Andrew Clayton and dnd5e contributors) for what is derived from it, and RF's for
+the rest. Licenses and copyright for each file are recorded for [REUSE](https://reuse.software) in `REUSE.toml` and
+`LICENSES/`.
+
+Written by RF, with Volta Fourteen (Claude Sonnet, AI).
