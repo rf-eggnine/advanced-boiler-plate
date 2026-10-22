@@ -1,9 +1,9 @@
-# Advanced Models
+# Advanced Boiler Plate
 
-The bases the data models of other modules extend. A library module (requires `advanced-core` only), so these
+The bases the data models of other modules extend. A library module (requires `aaaadvanced-core` only), so these
 exist before the game system and the ordinary modules load. They are added to `api.data` of the neutral API with
-`contribute`, so `api.data.AdvancedSystemDataModel` and `api.data.AdvancedSparseDataModel` are where modules look for
-them, as well as `api.modules.require("advanced-models")`.
+`moduleProvides`, so `api.data.AdvancedSystemDataModel` and `api.data.AdvancedSparseDataModel` are where modules look for
+them, as well as `api.modules.require("advanced-boiler-plate")`.
 
 | Member | Is |
 |---|---|
@@ -24,9 +24,9 @@ class Gadget extends AdvancedSystemDataModel.mixin(Described) {
 }
 ```
 
-A module that extends these lists `advanced-models` in its `requires`. Do not rely on the order modules load in: read the
+A module that extends these lists `advanced-boiler-plate` in its `requires`. Do not rely on the order modules load in: read the
 classes when the game initializes (the `init` hook) or later, and build the model classes there.
 
 ## The singleton message
 
-`ADVANCED_MODELS.Singleton`, with `{itemType}` and `{actorType}`.
+`ADVANCED_BOILER_PLATE.Singleton`, with `{itemType}` and `{actorType}`.

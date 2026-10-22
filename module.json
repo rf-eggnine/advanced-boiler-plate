@@ -1,7 +1,7 @@
 {
-  "id": "advanced-clock",
-  "title": "Advanced Clock",
-  "description": "Moves the world clock a little with real time, so that effects with a duration run out while the game is played. Off to begin with; waits while the game is paused.",
+  "id": "advanced-boiler-plate",
+  "title": "Advanced Boiler Plate",
+  "description": "Provides boiler plate for a minumal system.",
   "version": "0.0.1",
   "compatibility": {
     "minimum": "14",
@@ -10,11 +10,12 @@
   "relationships": {
     "requires": [
       {
-        "id": "advanced-core",
+        "id": "aaaadvanced-core",
         "type": "module"
       }
     ]
   },
+  "library": true,
   "esmodules": [
     "module.mjs"
   ],

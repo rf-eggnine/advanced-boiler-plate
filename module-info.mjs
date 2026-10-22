@@ -1,11 +1,11 @@
 /** Identity for this module. Module code reads these values, never the system config. */
 export const MODULE = Object.freeze({
-  id: "advanced-models",
-  loc: "ADVANCED_MODELS",
-  flags: "advanced-models",
-  settings: "advanced-models",
-  hooks: "advanced-models",
-  css: "advanced-models",
-  templates: "modules/advanced-models/templates",
-  assets: "modules/advanced-models/assets"
+  id: "advanced-boiler-plate",
+  loc: "ADVANCED_BOILER_PLATE",
+  flags: "advanced-boiler-plate",
+  settings: "advanced-boiler-plate",
+  hooks: "advanced-boiler-plate",
+  css: "advanced-boiler-plate",
+  templates: "modules/advanced-boiler-plate/templates",
+  assets: "modules/advanced-boiler-plate/assets"
 });
